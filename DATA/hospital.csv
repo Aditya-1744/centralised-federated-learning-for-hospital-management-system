@@ -1,0 +1,31 @@
+hospitalid,numbedscategory,teachingstatus,region
+1,100 - 249,1,Northeast
+2,250 - 499,0,South
+3,500 - 999,1,West
+4,>= 1000,0,Midwest
+5,<100,1,Northeast
+6,100 - 249,0,South
+7,250 - 499,1,West
+8,500 - 999,0,Midwest
+9,>= 1000,1,Northeast
+10,<100,0,South
+11,100 - 249,1,West
+12,250 - 499,0,Midwest
+13,500 - 999,1,Northeast
+14,>= 1000,0,South
+15,<100,1,West
+16,100 - 249,0,Midwest
+17,250 - 499,1,Northeast
+18,500 - 999,0,South
+19,>= 1000,1,West
+20,<100,0,Midwest
+21,100 - 249,1,Northeast
+22,250 - 499,0,South
+23,500 - 999,1,West
+24,>= 1000,0,Midwest
+25,<100,1,Northeast
+26,100 - 249,0,South
+27,250 - 499,1,West
+28,500 - 999,0,Midwest
+29,>= 1000,1,Northeast
+30,<100,0,South

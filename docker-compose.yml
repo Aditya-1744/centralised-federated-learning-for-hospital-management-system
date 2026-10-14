@@ -1,0 +1,65 @@
+# Local multi-container simulation of the FL network: one central server, three
+# hospital nodes (mirrors the hospitalid 6/12/19 combo already verified via
+# `python backend/server/fl_server.py` + `hospital_node.py` on the host), and
+# the dashboard-facing metrics API.
+#
+# One-time setup before `docker compose up`:
+#   python backend/generate_dev_cert.py   # writes backend/certs/server.{crt,key}
+#
+# Only the hospital-node containers ever mount ./data -- fl-server and api
+# never get a view of raw patient data, only weights/metrics over the network.
+services:
+  fl-server:
+    build: ./backend
+    working_dir: /app/backend
+    command: ["python", "server/fl_server.py", "--rounds", "3", "--min_clients", "3", "--proximal_mu", "0.1"]
+    volumes:
+      - ./backend/certs:/app/backend/certs:ro
+      - telemetry:/app/backend/server/telemetry
+
+  hospital-node-6:
+    build: ./backend
+    working_dir: /app/backend
+    command: ["python", "client/hospital_node.py", "--hospitalid", "6", "--server_address", "fl-server:8443"]
+    depends_on:
+      - fl-server
+    volumes:
+      - ./DATA:/app/DATA:ro
+      - ./backend/certs:/app/backend/certs:ro
+
+  hospital-node-12:
+    build: ./backend
+    working_dir: /app/backend
+    command: ["python", "client/hospital_node.py", "--hospitalid", "12", "--server_address", "fl-server:8443"]
+    depends_on:
+      - fl-server
+    volumes:
+      - ./DATA:/app/DATA:ro
+      - ./backend/certs:/app/backend/certs:ro
+
+  hospital-node-19:
+    build: ./backend
+    working_dir: /app/backend
+    command: ["python", "client/hospital_node.py", "--hospitalid", "19", "--server_address", "fl-server:8443"]
+    depends_on:
+      - fl-server
+    volumes:
+      - ./DATA:/app/DATA:ro
+      - ./backend/certs:/app/backend/certs:ro
+
+  api:
+    build: ./backend
+    working_dir: /app/backend/api
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      - FL_DASHBOARD_FRONTEND_ORIGIN=${FL_DASHBOARD_FRONTEND_ORIGIN:-http://localhost:3000}
+      - FL_DASHBOARD_JWT_SECRET=${FL_DASHBOARD_JWT_SECRET:-dev-only-insecure-secret-change-me}
+      - FL_DASHBOARD_USER=${FL_DASHBOARD_USER:-admin}
+      - FL_DASHBOARD_PASSWORD=${FL_DASHBOARD_PASSWORD:-changeme}
+    ports:
+      - "8000:8000"
+    volumes:
+      - telemetry:/app/backend/server/telemetry:ro
+
+volumes:
+  telemetry:

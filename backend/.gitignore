@@ -1,0 +1,4 @@
+certs/
+server/telemetry/
+__pycache__/
+.pytest_cache/
